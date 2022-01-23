@@ -108,6 +108,9 @@ struct vkcube {
    VkSemaphore semaphore;
    VkCommandPool cmd_pool;
 
+   unsigned counter_count;
+   VkQueryPool perf_pool;
+
    void *map;
    uint32_t vertex_offset, colors_offset, normals_offset;
 

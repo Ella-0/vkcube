@@ -411,6 +411,7 @@ init_cube(struct vkcube *vc)
 static void
 render_cube(struct vkcube *vc, struct vkcube_buffer *b, bool wait_semaphore)
 {
+   vkResetQueryPool(vc->device, vc->perf_pool, 0, 1);
    struct ubo ubo;
    struct timeval tv;
    uint64_t t;
@@ -497,12 +498,16 @@ render_cube(struct vkcube *vc, struct vkcube_buffer *b, bool wait_semaphore)
    };
    vkCmdSetScissor(b->cmd_buffer, 0, 1, &scissor);
 
+
    vkCmdDraw(b->cmd_buffer, 4, 1, 0, 0);
    vkCmdDraw(b->cmd_buffer, 4, 1, 4, 0);
    vkCmdDraw(b->cmd_buffer, 4, 1, 8, 0);
    vkCmdDraw(b->cmd_buffer, 4, 1, 12, 0);
    vkCmdDraw(b->cmd_buffer, 4, 1, 16, 0);
+   vkCmdBeginQuery(b->cmd_buffer, vc->perf_pool, 0, 0);
    vkCmdDraw(b->cmd_buffer, 4, 1, 20, 0);
+
+   vkCmdEndQuery(b->cmd_buffer, vc->perf_pool, 0);
 
    vkCmdEndRenderPass(b->cmd_buffer);
 

@@ -128,6 +128,8 @@ static int find_image_memory(struct vkcube *vc, unsigned allowed)
     return -1;
 }
 
+#define VK_DEV_PROC(dev, f) PFN_vk##f f; assert(f = (PFN_vk##f) vkGetDeviceProcAddr(dev, "vk" #f))
+#define VK_INST_PROC(inst, f) PFN_vk##f f; assert(f = (PFN_vk##f) vkGetInstanceProcAddr(inst, "vk" #f))
 static void
 init_vk(struct vkcube *vc, const char *extension)
 {
@@ -136,13 +138,18 @@ init_vk(struct vkcube *vc, const char *extension)
          .pApplicationInfo = &(VkApplicationInfo) {
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName = "vkcube",
-            .apiVersion = VK_MAKE_VERSION(1, 1, 0),
+            .apiVersion = VK_MAKE_VERSION(1, 2, 0),
          },
-         .enabledExtensionCount = extension ? 2 : 0,
-         .ppEnabledExtensionNames = (const char *[2]) {
+         .enabledExtensionCount = extension ? 3 : 1,
+         .ppEnabledExtensionNames = (const char *[3]) {
+            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
             VK_KHR_SURFACE_EXTENSION_NAME,
             extension,
          },
+         .enabledLayerCount = 1,
+         .ppEnabledLayerNames = (const char *[1]) {
+             "VK_LAYER_KHRONOS_validation"
+         }
       },
       NULL,
       &vc->instance);
@@ -181,9 +188,27 @@ init_vk(struct vkcube *vc, const char *extension)
    vkGetPhysicalDeviceQueueFamilyProperties(vc->physical_device, &count, props);
    assert(props[0].queueFlags & VK_QUEUE_GRAPHICS_BIT);
 
+   VkPhysicalDeviceFeatures2 pdf = {
+       .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR,
+       .pNext = &(VkPhysicalDeviceHostQueryResetFeatures){
+           .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES,
+           .hostQueryReset = true
+       }
+   };
+
+   vkGetPhysicalDeviceFeatures2(vc->physical_device, &pdf);
+
    vkCreateDevice(vc->physical_device,
                   &(VkDeviceCreateInfo) {
                      .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                     .pNext = &(VkPhysicalDeviceHostQueryResetFeatures){
+                         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES,
+                         .pNext= &(VkPhysicalDevicePerformanceQueryFeaturesKHR){
+                             .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR,
+                             .performanceCounterQueryPools = true
+                         },
+                         .hostQueryReset = true
+                     },
                      .queueCreateInfoCount = 1,
                      .pQueueCreateInfos = &(VkDeviceQueueCreateInfo) {
                         .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -192,15 +217,75 @@ init_vk(struct vkcube *vc, const char *extension)
                         .flags = vc->protected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0,
                         .pQueuePriorities = (float []) { 1.0f },
                      },
-                     .enabledExtensionCount = 1,
+                     .enabledExtensionCount = 2,
                      .ppEnabledExtensionNames = (const char * const []) {
                         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                        VK_KHR_PERFORMANCE_QUERY_EXTENSION_NAME
                      },
                   },
                   NULL,
                   &vc->device);
 
    vkGetDeviceQueue(vc->device, 0, 0, &vc->queue);
+
+   VK_INST_PROC(vc->instance, EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
+   VK_INST_PROC(vc->instance, GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
+   VK_INST_PROC(vc->instance, AcquireProfilingLockKHR);
+
+   EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(vc->physical_device, 0, &vc->counter_count, NULL, NULL);
+
+   VkPerformanceCounterKHR counters[vc->counter_count];
+   memset(counters, 0, sizeof(counters));
+   VkPerformanceCounterDescriptionKHR counter_descs[vc->counter_count];
+   memset(counter_descs, 0, sizeof(counter_descs));
+
+   EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(vc->physical_device, 0, &vc->counter_count, counters, counter_descs);
+
+   unsigned enabled_counter = 13;
+   for (unsigned x = 0; x < vc->counter_count; x++) {
+       printf("%u: %u - %s\n", x, counters[x].storage, counter_descs[x].name);
+       printf("       - %s\n\n", counter_descs[x].description);
+   }
+
+   vc->counter_count = 1;
+
+   VkQueryPoolPerformanceCreateInfoKHR pq_info = {
+       .sType = VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR,
+       .queueFamilyIndex = 0,
+       .counterIndexCount = 1,
+       .pCounterIndices = &enabled_counter,
+   };
+
+   // unsigned n_passes = -1;
+   // for (;n_passes > 1; pq_info.counterIndexCount--) {
+   //     GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(
+   //         vc->physical_device,
+   //         &pq_info,
+   //         &n_passes
+   //     );
+   //     printf("num passes down to %u with %u counters\n", n_passes, pq_info.counterIndexCount);
+   // }
+
+   // vc->counter_count = pq_info.counterIndexCount;
+
+   // for (unsigned x = 0; x < vc->counter_count; x++) {
+   //     printf("%u: %u - %s\n", enabled_counters[x], ncounters[x].storage, counter_descs[x].name);
+   //     printf("       - %s\n\n", ncounter_descs[x].description);
+   // }
+
+   VkQueryPoolCreateInfo qp_info = {
+       .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+       .pNext = &pq_info,
+       .queryCount = 1,
+       .queryType = VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR
+   };
+
+   vkCreateQueryPool(vc->device, &qp_info, NULL, &vc->perf_pool);
+
+   AcquireProfilingLockKHR(vc->device, &(VkAcquireProfilingLockInfoKHR) {
+       .sType = VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR,
+       .timeout = UINT64_MAX
+   });
 }
 
 static void
@@ -1232,7 +1317,7 @@ mainloop_wayland(struct vkcube *vc)
    struct pollfd fds[] = {
       { wl_display_get_fd(vc->wl.display), POLLIN },
    };
-   while (1) {
+   for (unsigned x = 0; x < 360; x++) {
       uint32_t index;
 
       while (wl_display_prepare_read(vc->wl.display) != 0)
@@ -1737,6 +1822,20 @@ mainloop(struct vkcube *vc)
       vkQueueWaitIdle(vc->queue);
       write_buffer(vc, &vc->buffers[0]);
       break;
+   }
+
+   VK_INST_PROC(vc->instance, ReleaseProfilingLockKHR);
+
+   ReleaseProfilingLockKHR(vc->device);
+
+   VkPerformanceCounterResultKHR counter_results[vc->counter_count];
+
+   vkGetQueryPoolResults(vc->device, vc->perf_pool, 0, 1,
+                         sizeof(counter_results), &counter_results,
+                         sizeof(counter_results), 0);
+
+   for (unsigned x = 0; x < vc->counter_count; x++) {
+       printf("value: %lu\n", counter_results[x].uint64);
    }
 }
 
