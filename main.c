@@ -146,7 +146,7 @@ init_vk(struct vkcube *vc, const char *extension)
             VK_KHR_SURFACE_EXTENSION_NAME,
             extension,
          },
-         .enabledLayerCount = 1,
+         .enabledLayerCount = 0,
          .ppEnabledLayerNames = (const char *[1]) {
              "VK_LAYER_KHRONOS_validation"
          }
@@ -156,6 +156,7 @@ init_vk(struct vkcube *vc, const char *extension)
 
    uint32_t count;
    VkResult res = vkEnumeratePhysicalDevices(vc->instance, &count, NULL);
+   printf("%d: found %u devices\n", res, count);
    fail_if(res != VK_SUCCESS || count == 0, "No Vulkan devices found.\n");
    VkPhysicalDevice pd[count];
    vkEnumeratePhysicalDevices(vc->instance, &count, pd);
@@ -241,7 +242,7 @@ init_vk(struct vkcube *vc, const char *extension)
 
    EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(vc->physical_device, 0, &vc->counter_count, counters, counter_descs);
 
-   unsigned enabled_counter = 13;
+   unsigned enabled_counter = 15;
    for (unsigned x = 0; x < vc->counter_count; x++) {
        printf("%u: %u - %s\n", x, counters[x].storage, counter_descs[x].name);
        printf("       - %s\n\n", counter_descs[x].description);
