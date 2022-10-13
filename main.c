@@ -44,18 +44,13 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <sys/sysmacros.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <linux/kd.h>
-#include <linux/vt.h>
-#include <linux/major.h>
 #include <termios.h>
 #include <poll.h>
 #include <math.h>
 #include <assert.h>
 #include <sys/mman.h>
-#include <linux/input.h>
 
 #include "common.h"
 
@@ -118,13 +113,17 @@ xstrdup(const char *s)
 static int find_image_memory(struct vkcube *vc, unsigned allowed)
 {
    VkMemoryPropertyFlags flags =
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
       (vc->protected ? VK_MEMORY_PROPERTY_PROTECTED_BIT : 0);
 
+    printf("memory type count: %u\n", vc->memory_properties.memoryTypeCount);
     for (unsigned i = 0; (1u << i) <= allowed && i <= vc->memory_properties.memoryTypeCount; ++i) {
-        if ((allowed & (1u << i)) && (vc->memory_properties.memoryTypes[i].propertyFlags & flags))
+        if ((allowed & (1u << i)) && ((vc->memory_properties.memoryTypes[i].propertyFlags & flags) == flags)) {
+            printf("flags: %u", vc->memory_properties.memoryTypes[i].propertyFlags);
             return i;
+        }
     }
+    puts("no found memory");
     return -1;
 }
 
@@ -138,11 +137,13 @@ init_vk(struct vkcube *vc, const char *extension)
             .pApplicationName = "vkcube",
             .apiVersion = VK_MAKE_VERSION(1, 1, 0),
          },
-         .enabledExtensionCount = extension ? 2 : 0,
+         .enabledExtensionCount = 1,
          .ppEnabledExtensionNames = (const char *[2]) {
+            VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
             VK_KHR_SURFACE_EXTENSION_NAME,
             extension,
          },
+         .flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
       },
       NULL,
       &vc->instance);
@@ -192,7 +193,7 @@ init_vk(struct vkcube *vc, const char *extension)
                         .flags = vc->protected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0,
                         .pQueuePriorities = (float []) { 1.0f },
                      },
-                     .enabledExtensionCount = 1,
+                     .enabledExtensionCount = 0,
                      .ppEnabledExtensionNames = (const char * const []) {
                         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                      },
@@ -214,6 +215,8 @@ init_vk_objects(struct vkcube *vc)
             {
                .format = vc->image_format,
                .samples = 1,
+               // .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+               // .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
@@ -345,6 +348,7 @@ convert_to_bytes(png_structp png, png_row_infop row_info, png_bytep data)
 static void
 write_png(const char *path, int32_t width, int32_t height, int32_t stride, void *pixels)
 {
+   puts("writepng");
    FILE *f = NULL;
    png_structp png_writer = NULL;
    png_infop png_info = NULL;
@@ -388,9 +392,11 @@ write_buffer(struct vkcube *vc, struct vkcube_buffer *b)
    void *map;
 
    vkMapMemory(vc->device, b->mem, 0, mem_size, 0, &map);
+   puts("here");
 
    fprintf(stderr, "writing first frame to %s\n", filename);
    write_png(filename, vc->width, vc->height, b->stride, map);
+   puts("done writing");
 }
 
 // Return -1 on failure.
@@ -398,7 +404,8 @@ static int
 init_headless(struct vkcube *vc)
 {
    init_vk(vc, NULL);
-   vc->image_format = VK_FORMAT_B8G8R8A8_SRGB;
+   // vc->image_format = VK_FORMAT_B8G8R8A8_SRGB;
+   vc->image_format = VK_FORMAT_B8G8R8A8_UNORM;
    init_vk_objects(vc);
 
    struct vkcube_buffer *b = &vc->buffers[0];
@@ -419,6 +426,35 @@ init_headless(struct vkcube *vc)
                  NULL,
                  &b->image);
 
+   // vkCreateImage(vc->device,
+   //               &(VkImageCreateInfo) {
+   //                  .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+   //                  .imageType = VK_IMAGE_TYPE_2D,
+   //                  // .format = VK_FORMAT_B8G8R8A8_SRGB,
+   //                  // .format = vc->image_format,
+   //                  .format = VK_FORMAT_R16G16B16A16_SFLOAT,
+   //                  .extent = { .width = vc->width, .height = vc->height, .depth = 1 },
+   //                  .mipLevels = 1,
+   //                  .arrayLayers = 1,
+   //                  .samples = 1,
+   //                  .tiling = VK_IMAGE_TILING_LINEAR,
+   //                  .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+   //                  .flags = vc->protected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0,
+   //               },
+   //               NULL,
+   //               &b->image_new);
+
+   // vkCreateBuffer(vc->device,
+   //                &(VkBufferCreateInfo) {
+   //                    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+   //                    .size = 0x4096,
+   //                    .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+   //                    .queueFamilyIndexCount = 1,
+   //                    .pQueueFamilyIndices = {0}
+   //                },
+   //                NULL,
+   //                &b->buffer);
+
    VkMemoryRequirements requirements;
    vkGetImageMemoryRequirements(vc->device, b->image, &requirements);
 
@@ -432,6 +468,18 @@ init_headless(struct vkcube *vc)
                     &b->mem);
 
    vkBindImageMemory(vc->device, b->image, b->mem, 0);
+
+   // vkAllocateMemory(vc->device,
+   //                  &(VkMemoryAllocateInfo) {
+   //                     .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+   //                     .allocationSize = requirements.size,
+   //                     .memoryTypeIndex = find_image_memory(vc, requirements.memoryTypeBits),
+   //                  },
+   //                  NULL,
+   //                  &b->mem);
+   // vkGetImageMemoryRequirements(vc->device, b->image_new, &requirements);
+   // vkBindImageMemory(vc->device, b->image_new, b->mem, 0);
+   
 
    b->stride = vc->width * 4;
 
@@ -1736,6 +1784,11 @@ mainloop(struct vkcube *vc)
       vc->model.render(vc, &vc->buffers[0], false);
       vkQueueWaitIdle(vc->queue);
       write_buffer(vc, &vc->buffers[0]);
+      while (0) {
+          vc->model.render(vc, &vc->buffers[0], false);
+          vkQueueWaitIdle(vc->queue);
+          sleep(1);
+      }
       break;
    }
 }
@@ -1754,8 +1807,10 @@ int main(int argc, char *argv[])
 #ifdef VKCUBE_USE_WAYLAND
    vc.wl.surface = NULL;
 #endif
-   vc.width = 1024;
-   vc.height = 768;
+   // vc.width = 1024;
+   vc.width = 256;
+   // vc.height = 768;
+   vc.height = 256;
    vc.protected = protected_chain;
    gettimeofday(&vc.start_tv, NULL);
 

@@ -5,9 +5,6 @@
 #include <string.h>
 #include <strings.h>
 
-#include <xf86drm.h>
-#include <xf86drmMode.h>
-#include <drm_fourcc.h>
 #include <png.h>
 
 
@@ -25,8 +22,6 @@
 #define VK_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-#include <gbm.h>
-
 #include "esUtil.h"
 
 #define printflike(a, b) __attribute__((format(printf, (a), (b))))
@@ -37,6 +32,8 @@ struct vkcube_buffer {
    struct gbm_bo *gbm_bo;
    VkDeviceMemory mem;
    VkImage image;
+   VkImage image_new;
+   VkBuffer buffer;
    VkImageView view;
    VkFramebuffer framebuffer;
    VkFence fence;
@@ -90,8 +87,6 @@ struct vkcube {
 
    VkSwapchainKHR swap_chain;
 
-   drmModeCrtc *crtc;
-   drmModeConnector *connector;
    uint32_t width, height;
 
    VkInstance instance;
@@ -104,7 +99,7 @@ struct vkcube {
    VkPipeline pipeline;
    VkDeviceMemory mem;
    VkBuffer buffer;
-   VkDescriptorSet descriptor_set;
+   // VkDescriptorSet descriptor_set;
    VkSemaphore semaphore;
    VkCommandPool cmd_pool;
 
