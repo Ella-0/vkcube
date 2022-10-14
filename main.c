@@ -1130,7 +1130,7 @@ handle_wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 		       uint32_t serial, uint32_t time, uint32_t key,
 		       uint32_t state)
 {
-    if (key == KEY_ESC && state == WL_KEYBOARD_KEY_STATE_PRESSED)
+    // if (key == KEY_ESC && state == WL_KEYBOARD_KEY_STATE_PRESSED)
       exit(0);
 }
 

@@ -227,120 +227,120 @@ init_cube(struct vkcube *vc)
       &vc->pipeline);
    printf("graphics pipeline create res: %d\n", g);
 
-   // static const float vVertices[] = {
-   //    // front
-   //    -1.0f, -1.0f, +1.0f, // point blue
-   //    +1.0f, -1.0f, +1.0f, // point magenta
-   //    -1.0f, +1.0f, +1.0f, // point cyan
-   //    +1.0f, +1.0f, +1.0f, // point white
-   //    // back
-   //    +1.0f, -1.0f, -1.0f, // point red
-   //    -1.0f, -1.0f, -1.0f, // point black
-   //    +1.0f, +1.0f, -1.0f, // point yellow
-   //    -1.0f, +1.0f, -1.0f, // point green
-   //    // right
-   //    +1.0f, -1.0f, +1.0f, // point magenta
-   //    +1.0f, -1.0f, -1.0f, // point red
-   //    +1.0f, +1.0f, +1.0f, // point white
-   //    +1.0f, +1.0f, -1.0f, // point yellow
-   //    // left
-   //    -1.0f, -1.0f, -1.0f, // point black
-   //    -1.0f, -1.0f, +1.0f, // point blue
-   //    -1.0f, +1.0f, -1.0f, // point green
-   //    -1.0f, +1.0f, +1.0f, // point cyan
-   //    // top
-   //    -1.0f, +1.0f, +1.0f, // point cyan
-   //    +1.0f, +1.0f, +1.0f, // point white
-   //    -1.0f, +1.0f, -1.0f, // point green
-   //    +1.0f, +1.0f, -1.0f, // point yellow
-   //    // bottom
-   //    -1.0f, -1.0f, -1.0f, // point black
-   //    +1.0f, -1.0f, -1.0f, // point red
-   //    -1.0f, -1.0f, +1.0f, // point blue
-   //    +1.0f, -1.0f, +1.0f  // point magenta
-   // };
+   static const float vVertices[] = {
+      // front
+      -1.0f, -1.0f, +1.0f, // point blue
+      +1.0f, -1.0f, +1.0f, // point magenta
+      -1.0f, +1.0f, +1.0f, // point cyan
+      +1.0f, +1.0f, +1.0f, // point white
+      // back
+      +1.0f, -1.0f, -1.0f, // point red
+      -1.0f, -1.0f, -1.0f, // point black
+      +1.0f, +1.0f, -1.0f, // point yellow
+      -1.0f, +1.0f, -1.0f, // point green
+      // right
+      +1.0f, -1.0f, +1.0f, // point magenta
+      +1.0f, -1.0f, -1.0f, // point red
+      +1.0f, +1.0f, +1.0f, // point white
+      +1.0f, +1.0f, -1.0f, // point yellow
+      // left
+      -1.0f, -1.0f, -1.0f, // point black
+      -1.0f, -1.0f, +1.0f, // point blue
+      -1.0f, +1.0f, -1.0f, // point green
+      -1.0f, +1.0f, +1.0f, // point cyan
+      // top
+      -1.0f, +1.0f, +1.0f, // point cyan
+      +1.0f, +1.0f, +1.0f, // point white
+      -1.0f, +1.0f, -1.0f, // point green
+      +1.0f, +1.0f, -1.0f, // point yellow
+      // bottom
+      -1.0f, -1.0f, -1.0f, // point black
+      +1.0f, -1.0f, -1.0f, // point red
+      -1.0f, -1.0f, +1.0f, // point blue
+      +1.0f, -1.0f, +1.0f  // point magenta
+   };
 
-   // static const float vColors[] = {
-   //    // front
-   //    0.0f,  0.0f,  1.0f, // blue
-   //    1.0f,  0.0f,  1.0f, // magenta
-   //    0.0f,  1.0f,  1.0f, // cyan
-   //    1.0f,  1.0f,  1.0f, // white
-   //    // back
-   //    1.0f,  0.0f,  0.0f, // red
-   //    0.0f,  0.0f,  0.0f, // black
-   //    1.0f,  1.0f,  0.0f, // yellow
-   //    0.0f,  1.0f,  0.0f, // green
-   //    // right
-   //    1.0f,  0.0f,  1.0f, // magenta
-   //    1.0f,  0.0f,  0.0f, // red
-   //    1.0f,  1.0f,  1.0f, // white
-   //    1.0f,  1.0f,  0.0f, // yellow
-   //    // left
-   //    0.0f,  0.0f,  0.0f, // black
-   //    0.0f,  0.0f,  1.0f, // blue
-   //    0.0f,  1.0f,  0.0f, // green
-   //    0.0f,  1.0f,  1.0f, // cyan
-   //    // top
-   //    0.0f,  1.0f,  1.0f, // cyan
-   //    1.0f,  1.0f,  1.0f, // white
-   //    0.0f,  1.0f,  0.0f, // green
-   //    1.0f,  1.0f,  0.0f, // yellow
-   //    // bottom
-   //    0.0f,  0.0f,  0.0f, // black
-   //    1.0f,  0.0f,  0.0f, // red
-   //    0.0f,  0.0f,  1.0f, // blue
-   //    1.0f,  0.0f,  1.0f  // magenta
-   // };
+   static const float vColors[] = {
+      // front
+      0.0f,  0.0f,  1.0f, // blue
+      1.0f,  0.0f,  1.0f, // magenta
+      0.0f,  1.0f,  1.0f, // cyan
+      1.0f,  1.0f,  1.0f, // white
+      // back
+      1.0f,  0.0f,  0.0f, // red
+      0.0f,  0.0f,  0.0f, // black
+      1.0f,  1.0f,  0.0f, // yellow
+      0.0f,  1.0f,  0.0f, // green
+      // right
+      1.0f,  0.0f,  1.0f, // magenta
+      1.0f,  0.0f,  0.0f, // red
+      1.0f,  1.0f,  1.0f, // white
+      1.0f,  1.0f,  0.0f, // yellow
+      // left
+      0.0f,  0.0f,  0.0f, // black
+      0.0f,  0.0f,  1.0f, // blue
+      0.0f,  1.0f,  0.0f, // green
+      0.0f,  1.0f,  1.0f, // cyan
+      // top
+      0.0f,  1.0f,  1.0f, // cyan
+      1.0f,  1.0f,  1.0f, // white
+      0.0f,  1.0f,  0.0f, // green
+      1.0f,  1.0f,  0.0f, // yellow
+      // bottom
+      0.0f,  0.0f,  0.0f, // black
+      1.0f,  0.0f,  0.0f, // red
+      0.0f,  0.0f,  1.0f, // blue
+      1.0f,  0.0f,  1.0f  // magenta
+   };
 
-   // static const float vNormals[] = {
-   //    // front
-   //    +0.0f, +0.0f, +1.0f, // forward
-   //    +0.0f, +0.0f, +1.0f, // forward
-   //    +0.0f, +0.0f, +1.0f, // forward
-   //    +0.0f, +0.0f, +1.0f, // forward
-   //    // back
-   //    +0.0f, +0.0f, -1.0f, // backbard
-   //    +0.0f, +0.0f, -1.0f, // backbard
-   //    +0.0f, +0.0f, -1.0f, // backbard
-   //    +0.0f, +0.0f, -1.0f, // backbard
-   //    // right
-   //    +1.0f, +0.0f, +0.0f, // right
-   //    +1.0f, +0.0f, +0.0f, // right
-   //    +1.0f, +0.0f, +0.0f, // right
-   //    +1.0f, +0.0f, +0.0f, // right
-   //    // left
-   //    -1.0f, +0.0f, +0.0f, // left
-   //    -1.0f, +0.0f, +0.0f, // left
-   //    -1.0f, +0.0f, +0.0f, // left
-   //    -1.0f, +0.0f, +0.0f, // left
-   //    // top
-   //    +0.0f, +1.0f, +0.0f, // up
-   //    +0.0f, +1.0f, +0.0f, // up
-   //    +0.0f, +1.0f, +0.0f, // up
-   //    +0.0f, +1.0f, +0.0f, // up
-   //    // bottom
-   //    +0.0f, -1.0f, +0.0f, // down
-   //    +0.0f, -1.0f, +0.0f, // down
-   //    +0.0f, -1.0f, +0.0f, // down
-   //    +0.0f, -1.0f, +0.0f  // down
-   // };
+   static const float vNormals[] = {
+      // front
+      +0.0f, +0.0f, +1.0f, // forward
+      +0.0f, +0.0f, +1.0f, // forward
+      +0.0f, +0.0f, +1.0f, // forward
+      +0.0f, +0.0f, +1.0f, // forward
+      // back
+      +0.0f, +0.0f, -1.0f, // backbard
+      +0.0f, +0.0f, -1.0f, // backbard
+      +0.0f, +0.0f, -1.0f, // backbard
+      +0.0f, +0.0f, -1.0f, // backbard
+      // right
+      +1.0f, +0.0f, +0.0f, // right
+      +1.0f, +0.0f, +0.0f, // right
+      +1.0f, +0.0f, +0.0f, // right
+      +1.0f, +0.0f, +0.0f, // right
+      // left
+      -1.0f, +0.0f, +0.0f, // left
+      -1.0f, +0.0f, +0.0f, // left
+      -1.0f, +0.0f, +0.0f, // left
+      -1.0f, +0.0f, +0.0f, // left
+      // top
+      +0.0f, +1.0f, +0.0f, // up
+      +0.0f, +1.0f, +0.0f, // up
+      +0.0f, +1.0f, +0.0f, // up
+      +0.0f, +1.0f, +0.0f, // up
+      // bottom
+      +0.0f, -1.0f, +0.0f, // down
+      +0.0f, -1.0f, +0.0f, // down
+      +0.0f, -1.0f, +0.0f, // down
+      +0.0f, -1.0f, +0.0f  // down
+   };
 
-   // vc->vertex_offset = sizeof(struct ubo);
-   // vc->colors_offset = vc->vertex_offset + sizeof(vVertices);
-   // vc->normals_offset = vc->colors_offset + sizeof(vColors);
-   // uint32_t mem_size = vc->normals_offset + sizeof(vNormals);
+   vc->vertex_offset = sizeof(struct ubo);
+   vc->colors_offset = vc->vertex_offset + sizeof(vVertices);
+   vc->normals_offset = vc->colors_offset + sizeof(vColors);
+   uint32_t mem_size = vc->normals_offset + sizeof(vNormals);
 
-   // vkCreateBuffer(vc->device,
-   //                &(VkBufferCreateInfo) {
-   //                   .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-   //                   .size = mem_size,
-   //                   .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
-   //                            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-   //                   .flags = 0
-   //                },
-   //                NULL,
-   //                &vc->buffer);
+   vkCreateBuffer(vc->device,
+                  &(VkBufferCreateInfo) {
+                     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                     .size = mem_size,
+                     .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
+                              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                     .flags = 0
+                  },
+                  NULL,
+                  &vc->buffer);
 
    // VkMemoryRequirements reqs;
    // vkGetBufferMemoryRequirements(vc->device, vc->buffer, &reqs);
@@ -465,17 +465,17 @@ render_cube(struct vkcube *vc, struct vkcube_buffer *b, bool wait_semaphore)
                         },
                         VK_SUBPASS_CONTENTS_INLINE);
 
-   // vkCmdBindVertexBuffers(b->cmd_buffer, 0, 3,
-   //                        (VkBuffer[]) {
-   //                           vc->buffer,
-   //                           vc->buffer,
-   //                           vc->buffer
-   //                        },
-   //                        (VkDeviceSize[]) {
-   //                           vc->vertex_offset,
-   //                           vc->colors_offset,
-   //                           vc->normals_offset
-   //                         });
+   vkCmdBindVertexBuffers(b->cmd_buffer, 0, 3,
+                          (VkBuffer[]) {
+                             vc->buffer,
+                             vc->buffer,
+                             vc->buffer
+                          },
+                          (VkDeviceSize[]) {
+                             vc->vertex_offset,
+                             vc->colors_offset,
+                             vc->normals_offset
+                           });
 
    vkCmdBindPipeline(b->cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vc->pipeline);
 
