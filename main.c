@@ -137,13 +137,7 @@ init_vk(struct vkcube *vc, const char *extension)
             .pApplicationName = "vkcube",
             .apiVersion = VK_MAKE_VERSION(1, 1, 0),
          },
-         .enabledExtensionCount = 1,
-         .ppEnabledExtensionNames = (const char *[2]) {
-            VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
-            VK_KHR_SURFACE_EXTENSION_NAME,
-            extension,
-         },
-         .flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+         .enabledExtensionCount = 0,
       },
       NULL,
       &vc->instance);

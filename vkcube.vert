@@ -17,6 +17,6 @@ void main()
 {
     int id = gl_VertexIndex;
     float idf = float(id) - 1.0f;
-    gl_Position = vec4(idf * 0.5f, idf * idf - 0.5, 0.0f, 1.0f) + posOff;
+    gl_Position = vec4(idf * 0.5f, idf * idf - 0.5, 0.0f, 1.0f);
     // vVaryingColor = vec4(idf * 0.5f + 0.5f, idf * idf, 0.0f, 1.0f);
 }
