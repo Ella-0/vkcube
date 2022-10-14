@@ -26,7 +26,7 @@ if get_option('x11').enabled()
 endif
 
 # See https://github.com/google/shaderc
-prog_glslc = find_program('glslc', required : false)
+prog_glslc = find_program('glslangValidator', required : false)
 prog_cp = find_program('cp')
 
 vkcube_files = files(
@@ -35,14 +35,15 @@ vkcube_files = files(
   'common.h',
   'cube.c',
   'esTransform.c',
-  'esUtil.h'
+  'esUtil.h',
+  'xdg-shell-protocol.c'
 )
 
 if prog_glslc.found()
   gen = generator(
     prog_glslc,
     output : '@PLAINNAME@.spv.h',
-    arguments : [ '@INPUT@', '-mfmt=num', '-o', '@OUTPUT@' ]
+    arguments : [ '-V', '-x', '-o', '@OUTPUT@', '@INPUT@' ]
   )
 else
   gen = generator(
