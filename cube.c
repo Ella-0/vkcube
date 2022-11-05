@@ -438,6 +438,8 @@ render_cube(struct vkcube *vc, struct vkcube_buffer *b, bool wait_semaphore)
    memcpy(ubo.normal, &ubo.modelview, sizeof ubo.normal);
 
    memcpy(vc->map, &ubo, sizeof(ubo));
+   float eeee = 0.25f;
+   // memcpy(vc->map, &eeee, sizeof(eeee));
 
    vkWaitForFences(vc->device, 1, &b->fence, VK_TRUE, UINT64_MAX);
    vkResetFences(vc->device, 1, &b->fence);

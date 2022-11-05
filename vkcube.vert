@@ -16,6 +16,9 @@ layout(location = 0) out vec4 vVaryingColor;
 
 void main()
 {
+    int id = gl_VertexIndex;
+    float idf = float(id) - 1.0f;
+    vec4 pos = vec4(idf * 0.5f, idf * idf - 0.5, 0.0f, 1.0f);
     gl_Position = modelviewprojectionMatrix * in_position;
     vec3 vEyeNormal = normalMatrix * in_normal;
     vec4 vPosition4 = modelviewMatrix * in_position;

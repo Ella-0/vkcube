@@ -1222,6 +1222,9 @@ init_wayland(struct vkcube *vc)
 
    create_swapchain(vc);
 
+   for (unsigned i = 0; i < 10; i++) puts("");
+   puts("We got wayland baby");
+   for (unsigned i = 0; i < 10; i++) puts("");
    return 0;
 }
 
@@ -1734,6 +1737,7 @@ mainloop(struct vkcube *vc)
       break;
    case DISPLAY_MODE_HEADLESS:
       vc->model.render(vc, &vc->buffers[0], false);
+      vc->model.render(vc, &vc->buffers[0], false);
       vkQueueWaitIdle(vc->queue);
       write_buffer(vc, &vc->buffers[0]);
       break;
@@ -1756,6 +1760,8 @@ int main(int argc, char *argv[])
 #endif
    vc.width = 1024;
    vc.height = 768;
+   vc.width = 256;
+   vc.height = 256;
    vc.protected = protected_chain;
    gettimeofday(&vc.start_tv, NULL);
 
