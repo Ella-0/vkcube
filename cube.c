@@ -421,6 +421,7 @@ render_cube(struct vkcube *vc, struct vkcube_buffer *b, bool wait_semaphore)
         (vc->start_tv.tv_sec * 1000 + vc->start_tv.tv_usec / 1000)) / 5;
 
    esMatrixLoadIdentity(&ubo.modelview);
+   // esTranslate(&ubo.modelview, 0.0f, 0.0f, -8.0f);
    esTranslate(&ubo.modelview, 0.0f, 0.0f, -8.0f);
    esRotate(&ubo.modelview, 45.0f + (0.25f * t), 1.0f, 0.0f, 0.0f);
    esRotate(&ubo.modelview, 45.0f - (0.5f * t), 0.0f, 1.0f, 0.0f);

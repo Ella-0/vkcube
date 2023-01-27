@@ -192,7 +192,7 @@ init_vk(struct vkcube *vc, const char *extension)
                         .flags = vc->protected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0,
                         .pQueuePriorities = (float []) { 1.0f },
                      },
-                     .enabledExtensionCount = 1,
+                     .enabledExtensionCount = 0,
                      .ppEnabledExtensionNames = (const char * const []) {
                         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                      },
@@ -1737,7 +1737,7 @@ mainloop(struct vkcube *vc)
       break;
    case DISPLAY_MODE_HEADLESS:
       vc->model.render(vc, &vc->buffers[0], false);
-      vc->model.render(vc, &vc->buffers[0], false);
+      // vc->model.render(vc, &vc->buffers[0], false);
       vkQueueWaitIdle(vc->queue);
       write_buffer(vc, &vc->buffers[0]);
       break;
@@ -1760,8 +1760,6 @@ int main(int argc, char *argv[])
 #endif
    vc.width = 1024;
    vc.height = 768;
-   vc.width = 256;
-   vc.height = 256;
    vc.protected = protected_chain;
    gettimeofday(&vc.start_tv, NULL);
 
